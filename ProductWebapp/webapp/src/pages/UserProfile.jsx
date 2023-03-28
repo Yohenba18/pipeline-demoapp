@@ -35,9 +35,8 @@ export default function Userprofile() {
   return (
     <div className="bg-color">
       <Navbar />
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex"}}>
         <Sidenav />
-        <RightSideNav/>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <section className="user">
             <Grid container direction="row" spacing={10}>
@@ -59,7 +58,7 @@ export default function Userprofile() {
                       <Grid item xs="9">
                         <Typography
                           variant="h5"
-                          sx={{ fontFamily: "sans-serif"}}
+                          sx={{ fontFamily: "sans-serif" }}
                         >
                           Name
                         </Typography>
@@ -145,7 +144,7 @@ export default function Userprofile() {
                         </Typography>
                       </Grid>
                     </Grid>
-                    
+
                     <Box
                       m={1}
                       display="flex"
@@ -171,10 +170,10 @@ export default function Userprofile() {
                   </CardContent>
                 </Card>
               </Grid>
-             
             </Grid>
           </section>
         </Box>
+        <RightSideNav />
       </Box>
     </div>
   );
