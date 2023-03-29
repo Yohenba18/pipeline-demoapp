@@ -22,15 +22,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+
 import javax.transaction.Transaction;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("bank-service")
+//@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("user-service")
 public class Controller {
     /*
      * Function to check whether the endpoint is working.
@@ -203,6 +205,7 @@ public class Controller {
         ResponseEntity<?> entity;
         try {
             if(user != null) {
+                System.out.println("***************Inside controller transfer*************");
                 boolean checkSender = transactionService.verifyAccount(requestModel.getSenderAccountNumber());
                 boolean checkReceiver = transactionService.verifyAccount(requestModel.getReceiverAccountNumber());
                 boolean checkBalance = transactionService.checkBalance(requestModel.getSenderAccountNumber(), requestModel.getDebit());
@@ -215,6 +218,7 @@ public class Controller {
 
                     transactionService.addTransactionDetails(requestModel, MT101);
                     TransactionModel transactionModel = interService.initiateTransaction(requestModel);
+                    System.out.println("*******************Back in controller transfer from transaction service************");
                     if(transactionModel.getStatus().equals("ACK")) {
                         transactionService.updateStatus(requestModel.getTransactionId(), "ACK");
                         transactionService.executeDebit(transactionModel.getMessage());

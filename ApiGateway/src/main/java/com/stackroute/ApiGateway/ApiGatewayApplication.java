@@ -35,7 +35,7 @@ public class ApiGatewayApplication {
 						.filters(f->f.dedupeResponseHeader("Access-Control-Allow-Origin","RETAIN_UNIQUE"))
 						.uri("lb://TRANSACTION-SERVICE")
 				)
-				.route(r -> r.path("/product-webapp/**")
+				.route(r -> r.path("/**")
 						.filters(f->f.dedupeResponseHeader("Access-Control-Allow-Origin","RETAIN_UNIQUE"))
 						.uri("lb://PRODUCT-WEBAPP-SERVICE")
 				)
