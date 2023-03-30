@@ -17,8 +17,24 @@ import img from "../images/swift_image.jpg";
 import { useNavigate } from "react-router-dom";
 import batonlogo from '../images/baton.png'
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
-const theme = createTheme();
+const theme = createTheme({
+  components: {
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          textDecoration: "none",
+          ":hover": {
+            textDecoration: "underline",
+            cursor: "pointer"
+          },
+        },
+      },
+    },
+  },
+});
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -38,6 +54,7 @@ export default function Login() {
     return regex.test(email);
   };
 
+
   const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -47,10 +64,12 @@ export default function Login() {
       password: data.get("password"),
     };
 
-    // console.log(mapData);
+    console.log(mapData);
+
+
 
     axios
-      .post("http://localhost:8090/user-service/login", mapData)
+      .post("http://localhost:8080/user-service/login", mapData)
       .then((res) => {
         if (res.status == 200) {
           console.log(res.data);
@@ -60,17 +79,19 @@ export default function Login() {
         localStorage.setItem("email", mapData.emailId);
       })
       .catch(function (error) {
+        toast.error("Enter a valid Email Id or Password");
         console.log(error.response.data);
       });
   };
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer position="top-center" />
       <Card
         style={{
-          marginTop:"40px",
+          marginTop: "40px",
           height: "88vh",
-          padding:"85px",
+          padding: "85px",
           border: "2px solid grey",
           boxShadow: " 10px 10px 5px 1px #005555",
         }}
@@ -83,17 +104,17 @@ export default function Login() {
         }}
       >
         <div>
-        
-        <h1 style={{fontSize:"40px"}}>
-          <img 
-            src={batonlogo}
-            alt="baton_logo"
-            style={{width:"60px",height:"55px"}}
-           />
-          &nbsp;SwiftPay
-        </h1>
+
+          <h1 style={{ fontSize: "40px" }}>
+            <img
+              src={batonlogo}
+              alt="baton_logo"
+              style={{ width: "60px", height: "55px" }}
+            />
+            &nbsp;SwiftPay
+          </h1>
         </div>
-        
+
         <Grid container component="main" sx={{ height: "100vh" }}>
           <CssBaseline />
           <Grid
@@ -103,17 +124,17 @@ export default function Login() {
             md={false}
             lg={6}
 
-            // sx={{
-            //   backgroundImage: `url(${img})`,
-            //   backgroundPosition: 'center',
-            //   maxWidth: '200px'
-            // }}
+          // sx={{
+          //   backgroundImage: `url(${img})`,
+          //   backgroundPosition: 'center',
+          //   maxWidth: '200px'
+          // }}
           >
             <img
               src={img}
               style={{
                 width: "100%",
-                height: "100%",
+                height: "90%",
                 objectFit: "cover",
               }}
             />
@@ -181,7 +202,7 @@ export default function Login() {
 
                 <Button
                   type="submit"
-                  fullWidth
+
                   variant="contained"
                   id="loginBtn"
                   sx={{ mt: 3, mb: 2, height: 50 }}
@@ -192,7 +213,7 @@ export default function Login() {
                 </Button>
                 <Grid container>
                   <Grid item>
-                    <Link href="/signup" variant="body2">
+                    <Link to='/signup' onClick={(e) => { navigate("/signup") }} variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>

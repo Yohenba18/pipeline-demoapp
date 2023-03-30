@@ -32,7 +32,7 @@ import javax.transaction.Transaction;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("user-service")
+@RequestMapping("bank-service")
 public class Controller {
     /*
      * Function to check whether the endpoint is working.
@@ -206,6 +206,7 @@ public class Controller {
         try {
             if(user != null) {
                 System.out.println("***************Inside controller transfer*************");
+                System.out.println(requestModel.toString());
                 boolean checkSender = transactionService.verifyAccount(requestModel.getSenderAccountNumber());
                 boolean checkReceiver = transactionService.verifyAccount(requestModel.getReceiverAccountNumber());
                 boolean checkBalance = transactionService.checkBalance(requestModel.getSenderAccountNumber(), requestModel.getDebit());
@@ -218,8 +219,9 @@ public class Controller {
 
                     transactionService.addTransactionDetails(requestModel, MT101);
                     TransactionModel transactionModel = interService.initiateTransaction(requestModel);
-                    System.out.println("*******************Back in controller transfer from transaction service************");
+                    System.out.println("*******************Back in controller transfer from transaction service************" + transactionModel.toString());
                     if(transactionModel.getStatus().equals("ACK")) {
+                        System.out.println("************INSIDE ACK**********");
                         transactionService.updateStatus(requestModel.getTransactionId(), "ACK");
                         transactionService.executeDebit(transactionModel.getMessage());
                         entity = new ResponseEntity<>("Transfer success", HttpStatus.OK);
@@ -238,6 +240,24 @@ public class Controller {
             }
         }
         catch (CustomException | IOException e) {
+            entity = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return entity;
+    }
+
+    @PostMapping("/credit")
+    public ResponseEntity<?> credit(@RequestBody String message) {
+        ResponseEntity<?> entity = null;
+
+        System.out.println("----------------MT910------------------");
+        System.out.println(message);
+        System.out.println("---------------------------------------");
+
+
+        try {
+            transactionService.executeCredit(message);
+            entity = new ResponseEntity<>("Credit done", HttpStatus.OK);
+        } catch (IOException e) {
             entity = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return entity;

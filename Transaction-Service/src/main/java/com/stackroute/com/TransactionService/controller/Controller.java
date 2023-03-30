@@ -5,15 +5,17 @@ import com.stackroute.com.TransactionService.model.AccountModel;
 import com.stackroute.com.TransactionService.model.TransactionModel;
 import com.stackroute.com.TransactionService.model.User;
 import com.stackroute.com.TransactionService.service.AccountServiceInterface;
+import com.stackroute.com.TransactionService.service.QueueServiceInterface;
 import com.stackroute.com.TransactionService.service.TransactionServiceInterface;
 import com.stackroute.com.TransactionService.interservice.InterService;
+import com.stackroute.com.TransactionService.swift.SwiftOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,13 +24,8 @@ import java.util.Map;
 @RequestMapping("transaction-service")
 public class Controller {
 
-
-
-
 	@Autowired
 	private TransactionServiceInterface transactionService;
-
-
 
 	@Autowired
 	private InterService interService;
@@ -36,6 +33,11 @@ public class Controller {
 	@Autowired
 	private AccountServiceInterface accountService;
 
+	@Autowired
+	private QueueServiceInterface queueService;
+
+	@Autowired
+	private SwiftOperation swiftOperation;
 
 	/*
 	Function To test Get ALL Transaction History
@@ -109,9 +111,33 @@ Function to Add a Transaction to the history*/
 	/*
 	 * For transfer
 	 */
-//	@PostMapping("/transfer")
-//	public ResponseEntity<?> initiateTransfer() {
-//
-//	}
+
+	@PostMapping("/transfer")
+	public ResponseEntity<?> initiateTransfer(@RequestBody TransactionModel transactionModel) {
+		ResponseEntity<?> entity = null;
+		try {
+			boolean checkMessage = transactionService.checkMT101(transactionModel.getMessage());
+			if(checkMessage) {
+				queueService.saveQueue(transactionModel.getMessage());
+				transactionModel.setStatus("ACK");
+				transactionService.addTransaction(transactionModel);
+
+				String MT900 = swiftOperation.generateMT900(transactionModel.getMessage());
+
+				System.out.println("------------MT900----------");
+				System.out.println(MT900);
+				System.out.println("----------------------------");
+
+				transactionModel.setMessage(MT900);
+				System.out.println("display "+transactionModel.toString());
+				entity = new ResponseEntity<>(transactionModel, HttpStatus.OK);
+			}
+		}
+		catch (CustomException | IOException e) {
+			transactionModel.setStatus("NACK");
+			entity = new ResponseEntity<>(transactionModel, HttpStatus.BAD_REQUEST);
+		}
+		return entity;
+	}
 
 }

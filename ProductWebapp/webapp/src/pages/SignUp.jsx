@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
-import  { useState } from 'react';
+import { useState } from 'react';
 import batonlogo from '../images/baton.png'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import Paper from "@mui/material/Paper";
@@ -21,8 +21,27 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import { style } from "@mui/system";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
-const theme = createTheme();
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 export default function SignUp() {
+
+
+  const theme = createTheme({
+    components: {
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            textDecoration: "none",
+            ":hover": {
+              textDecoration: "underline",
+              cursor: "pointer"
+            },
+          },
+        },
+      },
+    },
+  });
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +49,7 @@ export default function SignUp() {
   const [location, setLocation] = useState('');
   const [value, setValue] = useState("");
   const [isValid, setIsValid] = useState(false);
-  
+
 
   const handleEmailChange = (event) => {
     const input = event.target.value;
@@ -43,17 +62,17 @@ export default function SignUp() {
     return regex.test(email);
   };
 
-  
+
 
   const isDisabled = !email || !password || !username || !value || !location || !isValid;
 
   const navigate = useNavigate();
- 
+
   const handleChange = (newValue) => {
     setValue(newValue);
-    
-    
-    
+
+
+
   };
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -69,24 +88,26 @@ export default function SignUp() {
     };
     console.log(mapData);
     axios
-      .post("http://localhost:8090/user-service/register", mapData)
+      .post("http://localhost:8080/user-service/register", mapData)
       .then((res) => {
         if (res.status == 201) {
           navigate("/");
         }
       })
       .catch(function (error) {
+        toast.error(error.response.data);
         console.log(error.response.data);
       });
   };
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer position="top-center" />
       <Card
         style={{
-          marginTop:"40px",
+          marginTop: "40px",
           height: "88vh",
           border: "2px solid grey",
-          boxShadow:" 10px 10px 5px 1px #005555"
+          boxShadow: " 10px 10px 5px 1px #005555"
         }}
         sx={{
           my: 8,
@@ -96,15 +117,15 @@ export default function SignUp() {
           alignItems: "center",
         }}
       >
-        <div>
-        <h1 style={{fontSize:"40px"}}>
-          <img 
-            src={batonlogo}
-            alt="baton_logo"
-            style={{width:"60px",height:"55px"}}
-           />
-          &nbsp;SwiftPay
-        </h1>
+        <div style={{ margin: "10px auto" }}>
+          <h1 style={{ fontSize: "40px" }}>
+            <img
+              src={batonlogo}
+              alt="baton_logo"
+              style={{ width: "60px", height: "55px" }}
+            />
+            &nbsp;SwiftPay
+          </h1>
         </div>
         <Grid container component="main" sx={{ height: "100vh" }}>
           <CssBaseline />
@@ -113,27 +134,27 @@ export default function SignUp() {
             xs={false}
             sm={false}
             md={false}
-            lg={6}
+            lg={7}
 
-            // sx={{
-            //   backgroundImage: `url(${img})`,
-            //   backgroundPosition: 'center',
-            //   maxWidth: '200px'
-            // }}
-            // sx={{
-            //   backgroundImage: `url(${img})`,
-            //   backgroundPosition: 'center',
-            //   maxWidth: '200px'
-            // }}
+          // sx={{
+          //   backgroundImage: `url(${img})`,
+          //   backgroundPosition: 'center',
+          //   maxWidth: '200px'
+          // }}
+          // sx={{
+          //   backgroundImage: `url(${img})`,
+          //   backgroundPosition: 'center',
+          //   maxWidth: '200px'
+          // }}
           >
             <img
               src={img}
               style={{
                 width: "100%",
-                height: "100%",
+                height: "90%",
                 objectFit: "cover",
-                padding:"50px"
-                
+                padding: "50px"
+
               }}
             />
           </Grid>
@@ -142,9 +163,9 @@ export default function SignUp() {
             xs={12}
             sm={12}
             md={12}
-            lg={6}
+            lg={5}
             square
-            style={{ padding: "35px" }}
+            style={{ paddingLeft: "2vh", paddingRight: "10vh", paddingBottom: "5vh" }}
           >
             <Box>
               <Typography component="h1" variant="h4">
@@ -154,7 +175,6 @@ export default function SignUp() {
                 component="form"
                 noValidate
                 onSubmit={handleSubmit}
-                sx={{ mt: 1 }}
               >
                 <TextField
                   margin="normal"
@@ -173,7 +193,7 @@ export default function SignUp() {
                     ),
                   }}
                 />
-                {isValid ? <p style={{color:"green"}}>Valid Email</p> : <p style={{color:"red"}}>Invalid Email!</p>}
+                {isValid ? <p style={{ color: "green" }}>Valid Email</p> : <p style={{ color: "red" }}>Invalid Email!</p>}
                 <TextField
                   margin="normal"
                   required
@@ -240,7 +260,7 @@ export default function SignUp() {
 
                 <Button
                   type="submit"
-                  fullWidth
+
                   variant="contained"
                   sx={{ mt: 3, mb: 2, height: 50 }}
                   style={{ backgroundColor: "#005555" }}
@@ -250,7 +270,7 @@ export default function SignUp() {
                 </Button>
                 <Grid container>
                   <Grid item>
-                    <Link href="/" variant="body2">
+                    <Link to='/login' onClick={(e) => { navigate("/login") }} variant="body2">
                       {"Already have an account ? Login "}
                     </Link>
                   </Grid>
