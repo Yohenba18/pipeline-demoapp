@@ -5,12 +5,34 @@ import Navbar from "../components/Navbar";
 import "../styles/transactionHistory.css";
 import axios from "axios";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-const url = "http://localhost:8060/transaction-service/transactions/get";
+const url = "http://localhost:8080/transaction-service/transactions/get";
 
 export default function Transactions() {
-   const genData = require("../generated.json");
-   let genRows = genData.transactions;
+  // const genData = require("../generated.json");
+  // let genRows = genData.transactions;
+
   let token = localStorage.getItem("token");
+
+  const accountNumber = () => {
+    return new Promise(function (resolve, reject) {
+      axios
+        .get("http://localhost:8080/bank-service/account/get", {
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+        })
+        .then(
+          (response) => {
+            resolve(response.data.accountNumber);
+          },
+          (error) => {
+            reject(error);
+          }
+        );
+    });
+  };
+
   const columns = [
     {
       field: "transactionId",
@@ -19,7 +41,7 @@ export default function Transactions() {
       width: 120,
     },
     {
-      field: "timeStamp",
+      field: "time",
       headerName: "Time Stamp",
       headerAlign: "center",
       flex: 1,
@@ -37,13 +59,13 @@ export default function Transactions() {
       flex: 1,
     },
     {
-      field: "beneficiaryName",
+      field: "receiverName",
       headerName: "Beneficiary Name",
       headerAlign: "center",
       flex: 1,
     },
     {
-      field: "accountNumber",
+      field: "senderAccountNumber",
       headerName: "From Account Number",
       headerAlign: "center",
       flex: 1,
@@ -78,14 +100,25 @@ export default function Transactions() {
         },
       })
       .then((response) => {
-        setRows(response.data);
+        console.log(response.data);
+
+        accountNumber().then((result) => {
+          console.log(result);
+          for (let index = 0; index < response.data.length; index++) {
+            if (response.data[index].senderAccountNumber != result) {
+              response.data[index].credit = response.data[index].debit;
+              response.data[index].debit = 0;
+            }
+          }
+          setRows(response.data);
+        });
       });
   }, []);
   console.log(rows);
 
   return (
     <>
-      <div >
+      <div>
         {/* {console.log(genData)} */}
         <Navbar />
         <Box height={30} />
@@ -98,19 +131,22 @@ export default function Transactions() {
                 sx={{ height: " 82vh", width: "100%", alignItems: "center" }}
               >
                 <DataGrid
-                  sx={{ m: 2, overflowX: "scroll" }}
+                  sx={{
+                    m: 2,
+                    overflowX: "scroll",
+                  }}
                   disableRowSelectionOnClick
                   autoHeight
-                  //rows={rows}
-                  rows={genRows}
+                  rows={rows}
+                  // rows={genRows}
                   columns={columns}
                   getRowId={(row) =>
                     row.transactionId +
-                    row.timeStamp +
+                    row.time +
                     row.message +
                     row.receiverAccountNumber +
-                    row.beneficiaryName +
-                    row.receiverAccountNumber +
+                    row.receiverName +
+                    row.senderAccountNumber +
                     row.credit +
                     row.debit +
                     row.status

@@ -21,14 +21,14 @@ export default function BankDetails() {
 
   const fetchDetails = () => {
     axios
-      .get("http://localhost:8070/bank-service/account/get", {
+      .get("http://localhost:8080/bank-service/account/get", {
         headers: {
           "Content-Type": "application/json",
           token: token,
         },
       })
       .then((response) => {
-        // console.log(response.data);
+        console.log(response.data);
         setAccountDetails(response.data);
       });
   };
