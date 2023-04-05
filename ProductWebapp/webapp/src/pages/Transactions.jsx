@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import "../styles/transactionHistory.css";
 import axios from "axios";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-const url = "http://localhost:8080/transaction-service/transactions/get";
+const url = "https://swiftpay.stackroute.io/transaction-service/transactions/get";
 
 export default function Transactions() {
   // const genData = require("../generated.json");
@@ -16,7 +16,7 @@ export default function Transactions() {
   const accountNumber = () => {
     return new Promise(function (resolve, reject) {
       axios
-        .get("http://localhost:8080/bank-service/account/get", {
+        .get("https://swiftpay.stackroute.io/bank-service/account/get", {
           headers: {
             "Content-Type": "application/json",
             token: token,
@@ -99,21 +99,23 @@ export default function Transactions() {
           token: token,
         },
       })
+      .then((res) => {
+        return res.data;
+      })
       .then((response) => {
-        console.log(response.data);
-
         accountNumber().then((result) => {
           console.log(result);
-          for (let index = 0; index < response.data.length; index++) {
-            if (response.data[index].senderAccountNumber != result) {
-              response.data[index].credit = response.data[index].debit;
-              response.data[index].debit = 0;
+          for (let index = 0; index < response.length; index++) {
+            if (response[index].senderAccountNumber != result) {
+              response[index].credit = response[index].debit;
+              response[index].debit = 0;
             }
           }
-          setRows(response.data);
         });
+        setRows(response);
       });
   }, []);
+
   console.log(rows);
 
   return (
